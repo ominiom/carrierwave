@@ -58,6 +58,12 @@ describe CarrierWave::Uploader do
       CarrierWave.stub!(:generate_cache_id).and_return('20071201-1234-345-2255')
     end
 
+    it "should use a custom cacher when available" do
+      @uploader.cacher = Object.new
+      @uploader.cacher.should_receive(:cache!)
+      @uploader.cache!(File.open(file_path('test.jpg')))
+    end
+
     it "should cache a file" do
       @uploader.cache!(File.open(file_path('test.jpg')))
       @uploader.file.should be_an_instance_of(CarrierWave::SanitizedFile)
@@ -208,6 +214,17 @@ describe CarrierWave::Uploader do
 
   describe '#retrieve_from_cache!' do
     it "should cache a file" do
+      @uploader.retrieve_from_cache!('20071201-1234-345-2255/test.jpeg')
+      @uploader.file.should be_an_instance_of(CarrierWave::SanitizedFile)
+    end
+
+    it "should use a custom cacher when available" do
+      @uploader.cacher = Object.new
+      @uploader.cacher.should_receive(:retrieve_from_cache!)
+      @uploader.retrieve_from_cache!('20071201-1234-345-2255/test.jpeg')
+    end
+
+    it "should use a custom cacher when available" do
       @uploader.retrieve_from_cache!('20071201-1234-345-2255/test.jpeg')
       @uploader.file.should be_an_instance_of(CarrierWave::SanitizedFile)
     end

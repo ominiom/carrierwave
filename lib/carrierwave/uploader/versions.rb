@@ -245,6 +245,10 @@ module CarrierWave
         versions.each { |name, v| v.retrieve_from_cache!(cache_name) }
       end
 
+      def remove_versions_from_cache!(cache_name)
+        versions.each { |name, v| v.remove_from_cache!(cache_name) }
+      end
+
       def retrieve_versions_from_store!(identifier)
         versions.each { |name, v| v.retrieve_from_store!(identifier) }
       end

@@ -122,6 +122,8 @@ module CarrierWave
             @filename = new_file.filename
             self.original_filename = new_file.filename
 
+            cacher.cache!(cache_path, new_file.read) if cacher && cacher.respond_to?(:cache!)
+
             if move_to_cache
               @file = new_file.move_to(cache_path, permissions, directory_permissions)
             else
@@ -145,7 +147,16 @@ module CarrierWave
       def retrieve_from_cache!(cache_name)
         with_callbacks(:retrieve_from_cache, cache_name) do
           self.cache_id, self.original_filename = cache_name.to_s.split('/', 2)
+
           @filename = original_filename
+
+          if cacher && cacher.respond_to?(:retrieve_from_cache!)
+            data = cacher.retrieve_from_cache!(cache_path)
+            temp = File.open(cache_path, 'wb')
+            temp.write(data)
+            temp.close
+          end
+          
           @file = CarrierWave::SanitizedFile.new(cache_path)
         end
       end

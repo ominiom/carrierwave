@@ -15,6 +15,7 @@ module CarrierWave
         add_config :storage_engines
         add_config :store_dir
         add_config :cache_dir
+        add_config :cacher
         add_config :enable_processing
         add_config :ensure_multipart_form
         add_config :delete_tmp_file_after_storage

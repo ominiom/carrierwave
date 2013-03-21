@@ -71,6 +71,9 @@ module CarrierWave
       def delete_cache_id
         if @cache_id
           path = File.expand_path(File.join(cache_dir, @cache_id), CarrierWave.root)
+
+          cacher.remove_from_cache!(path) if cacher && cacher.respond_to?(:remove_from_cache!)
+
           begin
             Dir.rmdir(path)
           rescue Errno::ENOENT
