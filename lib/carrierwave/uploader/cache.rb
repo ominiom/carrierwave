@@ -125,10 +125,9 @@ module CarrierWave
           @filename = original_filename
 
           if cacher
-            data = cacher.retrieve_from_cache!(cache_name)
-            temp = File.open(cache_path, 'wb')
-            temp.write(data)
-            temp.close
+            File.open(cache_path, 'wb') do |file|
+              file.write cacher.retrieve_from_cache!(cache_name)
+            end
           end
           
           @file = CarrierWave::SanitizedFile.new(cache_path)
