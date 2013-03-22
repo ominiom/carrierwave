@@ -26,8 +26,6 @@ module CarrierWave
       include CarrierWave::Uploader::Callbacks
       include CarrierWave::Uploader::Configuration
 
-      module ClassMethods
-
       ##
       # Returns true if the uploader has been cached
       #
