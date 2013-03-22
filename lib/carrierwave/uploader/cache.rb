@@ -125,6 +125,9 @@ module CarrierWave
           @filename = original_filename
 
           if cacher
+            # Cache directory may not even exist
+            FileUtils.mkdir_p(File.dirname(cache_path))
+
             File.open(cache_path, 'wb') do |file|
               file.write cacher.retrieve_from_cache!(cache_name)
             end
