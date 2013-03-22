@@ -58,11 +58,16 @@ module CarrierWave
           with_callbacks(:store, new_file) do
             new_file = storage.store!(@file)
             @file.delete if (delete_tmp_file_after_storage && ! move_to_store)
+            delete_cache_name
             delete_cache_id
             @file = new_file
             @cache_id = nil
           end
         end
+      end
+
+      def delete_cache_name
+        cacher.remove_from_cache!(cache_name) if cacher && cache_name
       end
 
       ##
@@ -71,8 +76,6 @@ module CarrierWave
       def delete_cache_id
         if @cache_id
           path = File.expand_path(File.join(cache_dir, @cache_id), CarrierWave.root)
-
-          cacher.remove_from_cache!(path) if cacher && cacher.respond_to?(:remove_from_cache!)
 
           begin
             Dir.rmdir(path)

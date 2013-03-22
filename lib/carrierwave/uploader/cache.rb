@@ -28,30 +28,6 @@ module CarrierWave
 
       module ClassMethods
 
-        ##
-        # Removes cached files which are older than one day. You could call this method
-        # from a rake task to clean out old cached files.
-        #
-        # You can call this method directly on the module like this:
-        #
-        #   CarrierWave.clean_cached_files!
-        #
-        # === Note
-        #
-        # This only works as long as you haven't done anything funky with your cache_dir.
-        # It's recommended that you keep cache files in one place only.
-        #
-        def clean_cached_files!(seconds=60*60*24)
-          Dir.glob(File.expand_path(File.join(cache_dir, '*'), CarrierWave.root)).each do |dir|
-            time = dir.scan(/(\d{4})(\d{2})(\d{2})-(\d{2})(\d{2})/).first.map { |t| t.to_i }
-            time = Time.utc(*time)
-            if time < (Time.now.utc - seconds)
-              FileUtils.rm_rf(dir)
-            end
-          end
-        end
-      end
-
       ##
       # Returns true if the uploader has been cached
       #
@@ -122,7 +98,7 @@ module CarrierWave
             @filename = new_file.filename
             self.original_filename = new_file.filename
 
-            cacher.cache!(cache_path, new_file.read) if cacher && cacher.respond_to?(:cache!)
+            cacher.cache!(cache_name, new_file.read) if cacher
 
             if move_to_cache
               @file = new_file.move_to(cache_path, permissions, directory_permissions)
@@ -150,8 +126,8 @@ module CarrierWave
 
           @filename = original_filename
 
-          if cacher && cacher.respond_to?(:retrieve_from_cache!)
-            data = cacher.retrieve_from_cache!(cache_path)
+          if cacher
+            data = cacher.retrieve_from_cache!(cache_name)
             temp = File.open(cache_path, 'wb')
             temp.write(data)
             temp.close
