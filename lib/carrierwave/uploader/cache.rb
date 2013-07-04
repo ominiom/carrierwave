@@ -26,6 +26,10 @@ module CarrierWave
       include CarrierWave::Uploader::Callbacks
       include CarrierWave::Uploader::Configuration
 
+      included do
+        after :process, :cache_processed!
+      end
+
       ##
       # Returns true if the uploader has been cached
       #
@@ -95,8 +99,6 @@ module CarrierWave
 
             @filename = new_file.filename
             self.original_filename = new_file.filename
-
-            cacher.cache!(cache_name, new_file.read) if cacher
             
             if move_to_cache
               @file = new_file.move_to(cache_path, permissions, directory_permissions)
@@ -105,6 +107,10 @@ module CarrierWave
             end
           end
         end
+      end
+
+      def cache_processed!
+        cacher.cache!(cache_key, file.read) if cacher
       end
 
       ##
@@ -129,7 +135,7 @@ module CarrierWave
             FileUtils.mkdir_p(File.dirname(cache_path))
 
             File.open(cache_path, 'wb') do |file|
-              file.write cacher.retrieve_from_cache!(cache_name)
+              file.write cacher.retrieve_from_cache!(cache_key)
             end
           end
           
@@ -138,6 +144,10 @@ module CarrierWave
       end
 
     private
+
+      def cache_key
+        File.join(cache_id, full_original_filename)
+      end
 
       def cache_path
         File.expand_path(File.join(cache_dir, cache_name), root)
